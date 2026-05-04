@@ -29,6 +29,11 @@ provider "aws" {
 # Se evita aws_s3_bucket porque el sandbox bloquea s3:GetBucketObjectLockConfiguration.
 # AWS CLI no ejecuta esa llamada, así que este workaround es estable.
 resource "null_resource" "s3_setup" {
+  triggers = {
+    bucket_name = var.bucket_name
+    aws_region  = var.aws_region
+  }
+
   provisioner "local-exec" {
     command = <<-EOT
       aws s3api create-bucket \
@@ -42,6 +47,16 @@ resource "null_resource" "s3_setup" {
       aws s3api put-bucket-policy \
         --bucket ${var.bucket_name} \
         --policy '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::${var.bucket_name}/*"}]}'
+    EOT
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<-EOT
+      aws s3 rm s3://${self.triggers["bucket_name"]} --recursive || true
+      aws s3api delete-bucket \
+        --bucket ${self.triggers["bucket_name"]} \
+        --region ${self.triggers["aws_region"]} || true
     EOT
   }
 }

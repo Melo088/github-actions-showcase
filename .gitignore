@@ -32,6 +32,6 @@ CLAUDE.md
 
 # Terraform — estado local y caché de providers (NO ignorar .terraform.lock.hcl)
 terraform/.terraform/
-terraform/terraform.tfstate
+terraform/terraform.tfstate*
 terraform/terraform.tfstate.backup
 *.tfvars
