@@ -7,16 +7,18 @@ const EASE = [0.22, 1, 0.36, 1]
 const VAULT_ROWS = [
   'AWS_ACCESS_KEY_ID',
   'AWS_SECRET_ACCESS_KEY',
+  'AWS_SESSION_TOKEN',
   'S3_BUCKET_NAME',
   'CLOUDFRONT_DIST_ID',
 ]
 
-const SNIPPET = `- name: Configure AWS credentials
-  uses: aws-actions/configure-aws-credentials@v4
-  with:
-    aws-access-key-id: \${{ secrets.AWS_ACCESS_KEY_ID }}
-    aws-secret-access-key: \${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    aws-region: \${{ secrets.AWS_REGION }}`
+const SNIPPET = `jobs:
+  deploy:
+    env:
+      AWS_ACCESS_KEY_ID: \${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: \${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: \${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_DEFAULT_REGION: \${{ secrets.AWS_REGION }}`
 
 const OIDC_SNIPPET = `permissions:
   id-token: write
@@ -127,8 +129,9 @@ export default function Secrets() {
             <div className="secrets-card">
               <h3 className="secrets-card-title">Uso en el workflow</h3>
               <p className="secrets-card-lead">
-                Se referencian con la sintaxis <code className="token">{'${{ secrets.NOMBRE }}'}</code>.
-                GitHub los redacta en los logs aunque aparezcan en la salida.
+                Declarados a nivel de job con <code className="token">env:</code>, los secrets se
+                convierten en variables de entorno que AWS CLI lee de forma nativa — sin ninguna
+                action intermediaria del Marketplace.
               </p>
               <CodeBlock filename="deploy.yml" language="yaml">
                 {SNIPPET}
