@@ -1,82 +1,61 @@
+# NOTA: si cambias la versión de algún provider, borra el lock file y reinicia:
+#   rm terraform/.terraform.lock.hcl
+#   terraform init
+#   terraform apply
+#
+# Se usa null_resource + AWS CLI para el bucket S3 porque el sandbox tiene
+# explicit deny en s3:GetBucketObjectLockConfiguration, lo que hace fallar
+# cualquier operación con aws_s3_bucket sin importar la versión del provider.
 terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 4.67"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.0"
     }
   }
 }
 
 # Las credenciales se leen de las variables de entorno
-# AWS_ACCESS_KEY_ID y AWS_SECRET_ACCESS_KEY — nunca hardcodeadas.
+# AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY y AWS_SESSION_TOKEN — nunca hardcodeadas.
 provider "aws" {
   region = var.aws_region
 }
 
-# ─── S3: bucket ────────────────────────────────────────────────────────────
-resource "aws_s3_bucket" "site" {
-  bucket = var.bucket_name
-}
-
-# Habilitar static website hosting (index + error → index.html para SPA)
-resource "aws_s3_bucket_website_configuration" "site" {
-  bucket = aws_s3_bucket.site.id
-
-  index_document {
-    suffix = "index.html"
+# ─── S3: bucket via AWS CLI ────────────────────────────────────────────────
+# Se evita aws_s3_bucket porque el sandbox bloquea s3:GetBucketObjectLockConfiguration.
+# AWS CLI no ejecuta esa llamada, así que este workaround es estable.
+resource "null_resource" "s3_setup" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      aws s3api create-bucket \
+        --bucket ${var.bucket_name} \
+        --region ${var.aws_region} && \
+      aws s3api delete-public-access-block \
+        --bucket ${var.bucket_name} && \
+      aws s3 website s3://${var.bucket_name} \
+        --index-document index.html \
+        --error-document index.html && \
+      aws s3api put-bucket-policy \
+        --bucket ${var.bucket_name} \
+        --policy '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::${var.bucket_name}/*"}]}'
+    EOT
   }
-
-  error_document {
-    key = "index.html"
-  }
-}
-
-# Desbloquear acceso público — necesario para website hosting sin IAM
-resource "aws_s3_bucket_public_access_block" "site" {
-  bucket = aws_s3_bucket.site.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-# Bucket policy: acceso de lectura anónimo a todos los objetos
-resource "aws_s3_bucket_policy" "site" {
-  bucket = aws_s3_bucket.site.id
-
-  # Depende del bloque de acceso público — debe aplicarse después
-  depends_on = [aws_s3_bucket_public_access_block.site]
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "PublicReadGetObject"
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.site.arn}/*"
-      }
-    ]
-  })
 }
 
 # ─── CloudFront: distribución ───────────────────────────────────────────────
-locals {
-  # Website endpoint HTTP del bucket — CloudFront apunta aquí, no al domain regional
-  s3_website_endpoint = aws_s3_bucket_website_configuration.site.website_endpoint
-}
-
-resource "aws_cloudfront_distribution" "site" {
+resource "aws_cloudfront_distribution" "cdn" {
   enabled             = true
   default_root_object = "index.html"
   comment             = "GitHub Actions Showcase — ${var.bucket_name}"
 
   origin {
-    origin_id   = "s3-website"
-    # Endpoint HTTP del website hosting — no el domain S3 regional
-    domain_name = local.s3_website_endpoint
+    origin_id = "s3-website"
+    # Website endpoint HTTP del bucket — formato fijo, no depende del recurso S3
+    domain_name = "${var.bucket_name}.s3-website-${var.aws_region}.amazonaws.com"
 
     custom_origin_config {
       http_port              = 80
@@ -100,7 +79,7 @@ resource "aws_cloudfront_distribution" "site" {
     }
   }
 
-  # SPA: cualquier 404 devuelve index.html con 200 (react-router / anclas)
+  # SPA: cualquier 404 devuelve index.html con 200
   custom_error_response {
     error_code            = 404
     response_page_path    = "/index.html"
@@ -119,5 +98,5 @@ resource "aws_cloudfront_distribution" "site" {
     cloudfront_default_certificate = true
   }
 
-  depends_on = [aws_s3_bucket_policy.site]
+  depends_on = [null_resource.s3_setup]
 }

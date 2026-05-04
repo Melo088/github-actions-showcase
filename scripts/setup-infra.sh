@@ -34,9 +34,12 @@ echo
 read -rp "  AWS_ACCESS_KEY_ID:     " AWS_ACCESS_KEY_ID
 read -rsp "  AWS_SECRET_ACCESS_KEY: " AWS_SECRET_ACCESS_KEY
 echo
+read -rsp "  AWS_SESSION_TOKEN:     " AWS_SESSION_TOKEN
+echo
 
 export AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY
+export AWS_SESSION_TOKEN
 
 ok "Credenciales cargadas en el entorno"
 
@@ -94,7 +97,10 @@ gh secret set S3_BUCKET_NAME        --body "$BUCKET"                --repo "$GIT
 gh secret set CLOUDFRONT_DIST_ID    --body "$DIST_ID"               --repo "$GITHUB_REPO" \
   || die "No se pudo subir CLOUDFRONT_DIST_ID"
 
-ok "5 secrets cargados en ${GITHUB_REPO}"
+gh secret set AWS_SESSION_TOKEN     --body "$AWS_SESSION_TOKEN"     --repo "$GITHUB_REPO" \
+  || die "No se pudo subir AWS_SESSION_TOKEN"
+
+ok "6 secrets cargados en ${GITHUB_REPO}"
 
 # ─── 6. RESUMEN FINAL ────────────────────────────────────────────────────────
 echo
