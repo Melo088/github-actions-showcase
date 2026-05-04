@@ -1286,6 +1286,228 @@ code, kbd, pre, samp {
   50%       { opacity: 0.45; }
 }
 
+/* ─── Deploy ──────────────────────────────────────────────────────────────── */
+.deploy-section {
+  position: relative;
+  overflow: hidden;
+  background: var(--gh-bg);
+}
+
+.deploy-bg-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 55% at 50% 90%, rgba(63, 185, 80, 0.055) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.deploy-headline {
+  font-size: clamp(48px, 7vw, 88px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.0;
+  margin-bottom: var(--space-6);
+}
+
+.deploy-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.deploy-benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--gh-muted);
+  line-height: 1.65;
+}
+
+.deploy-benefit-icon {
+  color: var(--gh-green-l);
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+}
+
+.deploy-time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gh-green-l);
+  background: rgba(63, 185, 80, 0.08);
+  border: 1px solid rgba(63, 185, 80, 0.22);
+  border-radius: 999px;
+  padding: var(--space-2) var(--space-4);
+}
+
+/* Run card — simula la UI de GitHub Actions */
+.run-card {
+  border: 1px solid var(--gh-border);
+  border-radius: 8px;
+  background: var(--gh-surface);
+  overflow: hidden;
+  margin-bottom: var(--space-5);
+}
+
+.run-card-header {
+  padding: var(--space-4);
+  background: var(--gh-surface2);
+  border-bottom: 1px solid var(--gh-border);
+}
+
+.run-card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gh-text);
+  margin-bottom: var(--space-2);
+  letter-spacing: -0.01em;
+}
+
+.run-card-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.run-card-meta {
+  font-size: 12px;
+  color: var(--gh-muted2);
+  font-family: var(--font-mono);
+}
+
+.run-card-body {
+  padding: var(--space-4);
+}
+
+.run-jobs-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gh-muted2);
+  margin-bottom: var(--space-3);
+}
+
+.run-job {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2);
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.run-job:hover {
+  background: var(--gh-surface2);
+}
+
+.run-job-icon {
+  color: var(--gh-green-l);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.run-job-name {
+  font-size: 13px;
+  color: var(--gh-text);
+  flex: 1;
+}
+
+.run-job-time {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--gh-muted2);
+}
+
+/* Infra diagram */
+.deploy-diagram {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-x: auto;
+  padding: var(--space-2) 0;
+  gap: 0;
+}
+
+.deploy-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 60px;
+}
+
+.deploy-node-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--gh-border);
+  background: var(--gh-surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deploy-node--green  .deploy-node-icon { color: var(--gh-green-l);  background: rgba(63, 185, 80, 0.1);    border-color: rgba(63, 185, 80, 0.22);  }
+.deploy-node--yellow .deploy-node-icon { color: var(--gh-yellow-l); background: rgba(227, 179, 65, 0.1);   border-color: rgba(227, 179, 65, 0.22); }
+.deploy-node--blue   .deploy-node-icon { color: var(--gh-blue);     background: rgba(56, 139, 253, 0.1);   border-color: rgba(56, 139, 253, 0.22); }
+.deploy-node--orange .deploy-node-icon { color: var(--gh-yellow);   background: rgba(210, 153, 34, 0.1);   border-color: rgba(210, 153, 34, 0.22); }
+
+.deploy-node-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--gh-text);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.deploy-node-sub {
+  font-size: 9.5px;
+  color: var(--gh-muted2);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.deploy-diagram-arrow {
+  color: var(--gh-muted2);
+  font-size: 13px;
+  flex-shrink: 0;
+  padding: 11px var(--space-2) 0;
+  line-height: 1;
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────────── */
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-6);
+  border-top: 1px solid var(--gh-border2);
+  background: var(--gh-canvas);
+  color: var(--gh-muted2);
+}
+
+.app-footer-text {
+  font-size: 12.5px;
+  font-family: var(--font-mono);
+  color: var(--gh-muted2);
+}
+
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .section-cols {
@@ -1334,5 +1556,9 @@ code, kbd, pre, samp {
 @media (max-width: 480px) {
   .marketplace-grid {
     grid-template-columns: 1fr;
+  }
+
+  .deploy-headline {
+    font-size: clamp(40px, 12vw, 60px);
   }
 }
