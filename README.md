@@ -117,6 +117,7 @@ El sandbox de AWS Academy usa credenciales temporales con permisos IAM restringi
 
 ### Prerrequisitos
 
+- Node.js 20+ instalado (`node -v`)
 - Terraform instalado (`terraform -v`)
 - AWS CLI instalado (`aws --version`)
 - GitHub CLI instalado y autenticado (`gh auth login`)
@@ -124,36 +125,90 @@ El sandbox de AWS Academy usa credenciales temporales con permisos IAM restringi
 
 ### Pasos
 
-**1. Clonar el repositorio**
+**1. Clonar e instalar dependencias**
 
 ```bash
 git clone https://github.com/Melo088/github-actions-showcase.git
 cd github-actions-showcase
+npm install
 ```
 
-**2. Levantar infraestructura y configurar secrets**
+Verificar que el sitio corre localmente antes de desplegar:
 
 ```bash
-chmod +x scripts/setup-infra.sh && ./scripts/setup-infra.sh
+npm run dev
+# http://localhost:5173
 ```
 
-El script solicita las credenciales AWS del sandbox, levanta el bucket S3 y la distribucion CloudFront con Terraform, y sube los 6 secrets al repositorio de GitHub automaticamente. Al finalizar muestra la URL del sitio.
+**2. Autenticar GitHub CLI**
 
-**3. El primer push dispara el deploy**
+Si es la primera vez en esta maquina:
+
+```bash
+gh auth login
+# Elegir: GitHub.com → HTTPS → Login with a web browser
+```
+
+Verificar que el CLI tiene acceso al repo:
+
+```bash
+gh repo view Melo088/github-actions-showcase
+```
+
+**3. Levantar infraestructura y configurar secrets**
+
+```bash
+chmod +x scripts/setup-infra.sh
+./scripts/setup-infra.sh
+```
+
+El script pide las credenciales AWS del sandbox interactivamente, levanta el bucket S3 y la distribucion CloudFront con Terraform, y sube los 6 secrets al repositorio de GitHub automaticamente. Al finalizar muestra la URL del sitio.
+
+Si es la primera vez corriendo Terraform en este directorio (o se borro el lock file):
+
+```bash
+cd terraform
+terraform init
+cd ..
+```
+
+**4. Disparar el primer deploy**
 
 ```bash
 git push origin main
 ```
 
-El workflow corre los tests, construye el sitio y lo sincroniza a S3. CloudFront puede tardar entre 5 y 15 minutos en propagar la primera vez.
+El workflow corre el job `test` y luego el job `deploy`. Se puede seguir el progreso en:
 
-**4. Al terminar la sesion: destruir la infraestructura**
-
-```bash
-cd terraform && terraform destroy
+```
+https://github.com/Melo088/github-actions-showcase/actions
 ```
 
-> **Importante:** siempre ejecutar `terraform destroy` antes de que expiren las credenciales del sandbox para evitar recursos huerfanos y cargos inesperados.
+> CloudFront puede tardar entre 5 y 15 minutos en propagar la primera vez. El sitio queda disponible en la URL que mostro `setup-infra.sh`.
+
+**5. Desarrollo local con cambios**
+
+Para iterar localmente y luego publicar:
+
+```bash
+npm run dev          # servidor local en http://localhost:5173
+npm run build        # genera dist/ (lo mismo que hace el workflow)
+npm run preview      # previsualiza el build estatico en http://localhost:4173
+git add .
+git commit -m "feat: descripcion del cambio"
+git push origin main # dispara el workflow automaticamente
+```
+
+**6. Al terminar la sesion: destruir la infraestructura**
+
+```bash
+chmod +x scripts/destroy-infra.sh
+./scripts/destroy-infra.sh
+```
+
+El script captura el ID de CloudFront desde el state de Terraform, pide confirmacion, corre `terraform destroy` y tiene un fallback via AWS CLI por si Terraform falla con la distribucion CloudFront.
+
+> **Importante:** siempre destruir antes de que expiren las credenciales del sandbox. Una vez que expiran, no es posible limpiar los recursos y pueden generar cargos.
 
 ---
 
