@@ -828,6 +828,164 @@ code, kbd, pre, samp {
   margin: 0;
 }
 
+/* ─── Pruebas ─────────────────────────────────────────────────────────────── */
+.pruebas-section {
+  background: var(--gh-canvas);
+}
+
+.pruebas-header {
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto var(--space-9);
+}
+
+.pruebas-headline {
+  font-size: clamp(36px, 5.5vw, 72px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+.hw-clip--green .hw {
+  color: var(--gh-green-l);
+}
+
+.pruebas-sub {
+  font-size: 15.5px;
+  font-weight: 300;
+  color: var(--gh-muted);
+  line-height: 1.75;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* Comparison cards */
+.pruebas-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-9);
+  max-width: 680px;
+  margin-inline: auto;
+  margin-bottom: var(--space-9);
+}
+
+.pruebas-card {
+  border-radius: 8px;
+  border: 1px solid var(--gh-border);
+  background: var(--gh-surface);
+  overflow: hidden;
+}
+
+.pruebas-card--pass {
+  border-color: rgba(63, 185, 80, 0.25);
+  background: rgba(63, 185, 80, 0.025);
+}
+
+.pruebas-card--fail {
+  border-color: rgba(248, 81, 73, 0.25);
+  background: rgba(248, 81, 73, 0.025);
+}
+
+.pruebas-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--gh-border2);
+  background: var(--gh-surface2);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--gh-text);
+  letter-spacing: -0.01em;
+}
+
+.pruebas-card--pass .pruebas-card-header {
+  border-bottom-color: rgba(63, 185, 80, 0.12);
+}
+
+.pruebas-card--fail .pruebas-card-header {
+  border-bottom-color: rgba(248, 81, 73, 0.12);
+}
+
+.pruebas-icon--pass { color: var(--gh-green-l); }
+.pruebas-icon--fail { color: var(--gh-red); }
+
+.pruebas-card-body {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Job row */
+.pruebas-job {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: 6px;
+  background: var(--gh-surface2);
+  border: 1px solid var(--gh-border2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.pruebas-job-icon {
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pruebas-job-icon--pass { color: var(--gh-green-l); }
+.pruebas-job-icon--fail { color: var(--gh-red); }
+.pruebas-job-icon--skip { color: var(--gh-muted2); }
+
+.pruebas-job-name {
+  flex: 1;
+  color: var(--gh-text);
+}
+
+.pruebas-job--skip .pruebas-job-name {
+  color: var(--gh-muted2);
+}
+
+.pruebas-job-time {
+  color: var(--gh-muted2);
+  font-size: 11px;
+}
+
+.pruebas-job-time--fail {
+  color: var(--gh-red);
+  opacity: 0.7;
+}
+
+.pruebas-arrow {
+  text-align: center;
+  color: var(--gh-muted2);
+  font-size: 16px;
+  padding: 6px 0;
+  line-height: 1;
+}
+
+.badge--muted {
+  color: var(--gh-muted2);
+  background: rgba(72, 79, 88, 0.15);
+  border-color: rgba(72, 79, 88, 0.3);
+}
+
+/* Code pair at the bottom */
+.pruebas-code {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 /* ─── CodeBlock ───────────────────────────────────────────────────────────── */
 .cb {
   background: var(--gh-surface);
