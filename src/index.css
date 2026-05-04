@@ -699,6 +699,18 @@ code, kbd, pre, samp {
   margin: 0 0 var(--space-4);
 }
 
+.secrets-card-compare {
+  font-size: 12.5px;
+  font-weight: 300;
+  color: var(--gh-muted);
+  line-height: 1.6;
+  margin: var(--space-3) 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: 2px solid var(--gh-border);
+  background: var(--gh-surface);
+  border-radius: 0 4px 4px 0;
+}
+
 /* Tipos de secrets (card 1) */
 .secrets-types {
   display: flex;
