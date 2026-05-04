@@ -16,7 +16,7 @@ export const MARKETPLACE_ACTIONS = [
   {
     name:        'aws-actions/configure-aws-credentials@v6',
     author:      'Amazon Web Services',
-    description: 'Configura credenciales de AWS en el runner usando secrets o OIDC para autenticación segura.',
+    description: 'Configura credenciales de AWS en el runner usando secrets u OIDC para autenticación segura.',
     stars:       '2.9k estrellas',
     icon:        'key',
   },
