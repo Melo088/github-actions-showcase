@@ -33,6 +33,11 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    env:
+      AWS_ACCESS_KEY_ID: \${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: \${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: \${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_DEFAULT_REGION: \${{ secrets.AWS_REGION }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -43,12 +48,6 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: \${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: \${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: \${{ secrets.AWS_REGION }}
       - name: Sync to S3
         run: aws s3 sync ./dist s3://\${{ secrets.S3_BUCKET_NAME }} --delete
       - name: Invalidate CloudFront cache
@@ -84,11 +83,11 @@ const ANNOTATIONS = [
   },
   {
     id: 'secrets',
-    lineLabel: 'L40–44',
-    lines: [40, 41, 42, 43, 44],
-    title: 'Secrets — credenciales seguras',
-    body: 'Las credenciales de AWS nunca se escriben directamente en el YAML. Se inyectan en tiempo de ejecución desde el vault cifrado de GitHub, y solo existen dentro del runner durante la ejecución.',
-    tip: '${{ secrets.NAME }} nunca aparece en logs — GitHub lo redacta automáticamente',
+    lineLabel: 'L27–31',
+    lines: [27, 28, 29, 30, 31],
+    title: 'env: — credenciales sin action intermediaria',
+    body: 'Las variables de entorno se declaran a nivel del job completo. AWS CLI las lee de forma nativa — sin ninguna action del Marketplace. AWS_SESSION_TOKEN es necesario en sandboxes que usan credenciales temporales (como AWS Academy).',
+    tip: '${{ secrets.NAME }} — cifrado en GitHub, redactado automáticamente en los logs',
   },
 ]
 

@@ -37,6 +37,11 @@ echo
 read -rsp "  AWS_SESSION_TOKEN:     " AWS_SESSION_TOKEN
 echo
 
+# Eliminar espacios y saltos de línea que read -s puede capturar al pegar
+AWS_ACCESS_KEY_ID="$(printf '%s' "$AWS_ACCESS_KEY_ID"   | tr -d '[:space:]')"
+AWS_SECRET_ACCESS_KEY="$(printf '%s' "$AWS_SECRET_ACCESS_KEY" | tr -d '[:space:]')"
+AWS_SESSION_TOKEN="$(printf '%s' "$AWS_SESSION_TOKEN"   | tr -d '[:space:]')"
+
 export AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY
 export AWS_SESSION_TOKEN
