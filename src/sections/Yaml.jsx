@@ -136,7 +136,7 @@ export default function Yaml() {
         >
           <span className="section-eyebrow">El workflow</span>
           <h2 className="section-title" style={{ marginTop: 'var(--space-3)' }}>
-            Cada línea tiene<br />un propósito
+            El propósito de<br />cada bloque
           </h2>
           <p className="section-lead" style={{ margin: '0 auto' }}>
             El <code className="token">deploy.yml</code> que despliega esta página ahora mismo.
