@@ -1559,6 +1559,31 @@ code, kbd, pre, samp {
   .section-cols {
     grid-template-columns: 1fr;
     gap: var(--space-6);
+  } /* ← cierra section-cols */
+
+  .secrets-sticky {
+    position: static;
+  }
+
+  .vault {
+    overflow-x: auto;
+    display: block;
+  }
+
+  .vault-header,
+  .vault-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: max-content;
+  }
+
+  .vault-row-name {
+    min-width: 160px;
+  }
+
+  .vault-masked {
+    min-width: 80px;
   }
 
   .container {
