@@ -82,12 +82,11 @@ export default function Marketplace() {
             className="section-title"
             style={{ marginTop: 'var(--space-3)', textAlign: 'center' }}
           >
-            Actions reutilizables
+            Ecosistema & Abstracción de Lógica
           </h2>
           <p className="marketplace-intro-text">
-            El Marketplace de GitHub tiene más de 20.000 actions listas para integrar.
-            Se referencian con la clave <code className="token">uses:</code> — GitHub
-            descarga y ejecuta la action en el runner automáticamente, sin configuración extra.
+            El Marketplace de GitHub permite la integración de lógica versionada mediante la directiva <code className="token">uses:</code>. 
+            Esto elimina la redundancia en la configuración del runtime, permitiendo que el runner aprovisione dependencias y credenciales de forma externa y segura.
           </p>
           <div className="marketplace-intro-code">
             <CodeBlock filename=".github/workflows/deploy.yml" language="yaml">

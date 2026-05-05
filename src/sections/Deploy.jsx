@@ -13,16 +13,16 @@ const wordV = {
 }
 
 const HEADLINE_WORDS = [
-  { text: 'Push.',  green: false, br: false },
-  { text: 'Test.',  green: false, br: true  },
-  { text: 'Live.',  green: true,  br: true  },
+  { text: 'Commit.', variant: null, br: false },
+  { text: 'Validate.', variant: null, br: false  },
+  { text: 'Deploy.',  variant: 'outline', br: true  },
 ]
 
 const BENEFITS = [
-  'Sin servidor de CI que mantener — GitHub provisiona y destruye el runner automáticamente.',
-  'HTTPS automático con CloudFront: certificados gestionados y caché global en cada edge.',
-  'Costo casi cero — S3 cobra por byte almacenado, no por servidor activo las 24 horas.',
-  'El pipeline vive en el mismo repo: el workflow está versionado junto con el código.',
+  'Provisionamiento efímero de runners: GitHub orquesta el runtime bajo demanda, eliminando la sobrecarga operativa de mantenimiento de servidores.',
+  'TLS gestionado y Edge Distribution: Despliegue global con terminación SSL/TLS automatizada y baja latencia mediante el backbone de AWS.',
+  'Modelo de costos Pay-as-you-go: Facturación basada estrictamente en el almacenamiento de objetos y transferencia de datos; sin costos fijos de computación.',
+  'Pipeline-as-Code (PaC): definición versionada del flujo de CI/CD dentro del repositorio, permitiendo trazabilidad y reproducibilidad de la ejecución.',
 ]
 
 const INFRA_NODES = [
@@ -111,13 +111,13 @@ export default function Deploy() {
               animate={headlineInView ? 'visible' : 'hidden'}
               aria-label="Push. Test. Live."
             >
-              {HEADLINE_WORDS.map(({ text, green, br }, i) => {
+              {HEADLINE_WORDS.map(({ text, variant, br }, i) => {
                 const spaceAfter =
                   i < HEADLINE_WORDS.length - 1 && !HEADLINE_WORDS[i + 1].br
                 return (
                   <span key={text}>
                     {br && <br />}
-                    <span className={`hw-clip${green ? ' hw-clip--green' : ''}`}>
+                    <span className={`hw-clip${variant ? ` hw-clip--${variant}` : ''}`}>
                       <motion.span className="hw" variants={wordV} custom={i}>
                         {text}
                       </motion.span>

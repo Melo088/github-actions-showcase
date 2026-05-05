@@ -43,8 +43,7 @@ export default function App() {
 
       <footer className="app-footer">
         <GitHubLogo />
-        <span className="app-footer-text">GitHub Actions Showcase · Infra III</span>
-        <span className="badge badge--green">deployed with actions</span>
+        <span className="app-footer-text">GitHub Actions Showcase · Infra III · deployed with actions</span>
       </footer>
     </div>
   )

@@ -48,34 +48,46 @@ github-actions-showcase/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml          # Pipeline CI/CD principal
+├── .gitignore
+├── eslint.config.js
+├── index.html                  # Punto de entrada HTML (Vite)
+├── package.json
+├── vite.config.js
+├── public/
+│   ├── favicon.svg
+│   └── icons.svg               # Sprite SVG de logos (AWS, GitHub, etc.)
 ├── scripts/
-│   └── setup-infra.sh          # Provisiona AWS y sube secrets a GitHub
+│   ├── setup-infra.sh          # Provisiona AWS y sube los 6 secrets a GitHub
+│   └── destroy-infra.sh        # Destruye infra con fallback via AWS CLI
 ├── src/
+│   ├── main.jsx                # Monta React en #root
+│   ├── App.jsx                 # Ensambla todas las secciones
+│   ├── index.css               # Variables CSS, reset, estilos globales
+│   ├── assets/
+│   │   └── hero.png
 │   ├── components/
 │   │   ├── Nav.jsx             # Barra de navegacion fija con blur
 │   │   ├── CodeBlock.jsx       # Bloque de codigo con syntax highlighting manual
 │   │   └── PipelineTicker.jsx  # Ticker animado del pipeline (Hero)
-│   ├── sections/               # Una por seccion, en orden de aparicion
-│   │   ├── Hero.jsx
-│   │   ├── Eventos.jsx
-│   │   ├── Yaml.jsx
-│   │   ├── Secrets.jsx
-│   │   ├── Pruebas.jsx
-│   │   ├── Marketplace.jsx
-│   │   └── Deploy.jsx
 │   ├── data/
 │   │   ├── eventos.js          # Triggers de GitHub Actions
 │   │   ├── marketplace.js      # Actions del marketplace
 │   │   └── pipeline.js         # Pasos del pipeline ticker
 │   ├── hooks/
 │   │   └── useScrollReveal.js  # Wrapper de useInView (Framer Motion)
-│   ├── App.jsx                 # Ensambla todas las secciones
-│   └── index.css               # Variables CSS, reset, estilos globales
-├── terraform/
-│   ├── main.tf                 # S3 via AWS CLI + distribucion CloudFront
-│   ├── variables.tf
-│   └── outputs.tf
-└── package.json
+│   └── sections/               # Una por seccion, en orden de aparicion
+│       ├── Hero.jsx
+│       ├── Eventos.jsx
+│       ├── Yaml.jsx
+│       ├── Secrets.jsx
+│       ├── Pruebas.jsx
+│       ├── Marketplace.jsx
+│       └── Deploy.jsx
+└── terraform/
+    ├── main.tf                 # S3 via null_resource+CLI + distribucion CloudFront
+    ├── variables.tf
+    ├── outputs.tf
+    └── .terraform.lock.hcl
 ```
 
 ---
@@ -206,9 +218,29 @@ chmod +x scripts/destroy-infra.sh
 ./scripts/destroy-infra.sh
 ```
 
-El script captura el ID de CloudFront desde el state de Terraform, pide confirmacion, corre `terraform destroy` y tiene un fallback via AWS CLI por si Terraform falla con la distribucion CloudFront.
+El script:
+1. Lee el ID de CloudFront desde el state de Terraform (o lo pide manualmente si el state ya no existe).
+2. Pide confirmacion antes de proceder.
+3. Corre `terraform destroy -auto-approve`, que vacia y elimina el bucket S3 y deshabilita + borra la distribucion CloudFront.
+4. Si Terraform falla con CloudFront (frecuente en el sandbox), activa un **fallback via AWS CLI** que deshabilita la distribucion, espera la propagacion (~5-15 min) y la elimina.
+5. Muestra un resumen del estado de cada recurso al finalizar.
 
-> **Importante:** siempre destruir antes de que expiren las credenciales del sandbox. Una vez que expiran, no es posible limpiar los recursos y pueden generar cargos.
+**Verificacion manual obligatoria (limitacion del sandbox)**
+
+Las credenciales del sandbox expiran al cerrar la sesion. Si el script reporta errores o si hay dudas, verificar en la consola de AWS antes de salir:
+
+| Servicio | Ruta en consola | Que debe mostrar |
+|----------|----------------|-----------------|
+| S3 | Services → S3 → Buckets | Lista vacia (sin buckets del proyecto) |
+| CloudFront | Services → CloudFront → Distributions | Lista vacia o distribucion en estado "Deleted" |
+
+Si la distribucion CloudFront queda en estado **Disabled** (no Deleted): es porque CloudFront aun esta propagando. En ese caso:
+- Esperar 5-15 minutos.
+- Entrar a la consola → CloudFront → seleccionar la distribucion → **Delete**.
+
+Si el bucket S3 queda con objetos (el `--recursive` del destroy fallo): vaciarlo desde la consola (S3 → bucket → Empty) antes de eliminarlo.
+
+> **Importante:** siempre destruir antes de que expiren las credenciales del sandbox. Una vez que expiran, no es posible limpiar los recursos desde la CLI ni desde Terraform.
 
 ---
 

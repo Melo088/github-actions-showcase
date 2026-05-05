@@ -3,8 +3,14 @@ name: Deploy to AWS S3 + CloudFront
 on:
   push:
     branches: ['main']
+    paths-ignore:
+      - '**.md'
+      - 'README*'
   pull_request:
     branches: ['main']
+    paths-ignore:
+      - '**.md'
+      - 'README*'
 
 jobs:
   test:

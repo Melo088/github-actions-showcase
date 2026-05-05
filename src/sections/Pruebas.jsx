@@ -14,21 +14,18 @@ const wordV = {
 }
 
 const HEADLINE_WORDS = [
-  { text: 'Tests',     green: false, br: false },
-  { text: 'primero,',  green: false, br: false },
-  { text: 'deploy',    green: true,  br: true  },
-  { text: 'después.',  green: false, br: false },
+  { text: 'Validación',    variant: null,      br: false },
+  { text: 'estricta,',    variant: null,      br: false },
+  { text: 'deploy',       variant: 'outline', br: true  },
+  { text: 'condicionado.', variant: null,      br: false },
 ]
 
-const JEST_SNIPPET = `// src/utils/sum.test.js
-describe('sum', () => {
-  it('adds two numbers', () => {
-    expect(sum(1, 2)).toBe(3)
-  })
+const JEST_SNIPPET = `// src/components/Button.test.jsx
+import { render, screen } from '@testing-library/react'
 
-  it('returns 0 with no args', () => {
-    expect(sum()).toBe(0)
-  })
+it('renders standard button correctly', () => {
+  render(<Button>Deploy</Button>)
+  expect(screen.getByText('Deploy')).toBeInTheDocument()
 })`
 
 const ACTIONS_SNIPPET = `test:
@@ -87,7 +84,7 @@ export default function Pruebas() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, ease: EASE }}
           >
-            Automatización de pruebas
+            Continuous Integration (CI)
           </motion.span>
 
           <motion.h2
@@ -95,15 +92,14 @@ export default function Pruebas() {
             className="pruebas-headline"
             initial="hidden"
             animate={headlineInView ? 'visible' : 'hidden'}
-            aria-label="Tests primero, deploy después."
+            aria-label="Validación estricta, deploy condicionado."
           >
-            {HEADLINE_WORDS.map(({ text, green, br }, i) => {
-              const spaceAfter =
-                i < HEADLINE_WORDS.length - 1 && !HEADLINE_WORDS[i + 1].br
+            {HEADLINE_WORDS.map(({ text, variant, br }, i) => {
+              const spaceAfter = i < HEADLINE_WORDS.length - 1 && !HEADLINE_WORDS[i + 1].br
               return (
                 <span key={text}>
                   {br && <br />}
-                  <span className={`hw-clip${green ? ' hw-clip--green' : ''}`}>
+                  <span className={`hw-clip${variant ? ` hw-clip--${variant}` : ''}`}>
                     <motion.span className="hw" variants={wordV} custom={i}>
                       {text}
                     </motion.span>
@@ -121,9 +117,10 @@ export default function Pruebas() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: EASE, delay: 0.45 }}
           >
-            El job de <code className="token">test</code> actúa como guardián del pipeline.
-            Si algún test falla, GitHub Actions marca el job de <code className="token">deploy</code> como{' '}
-            <em>skipped</em> y el código nunca llega a producción.
+            El job de <code className="token">test</code> establece una restricción en el grafo de ejecución.
+            Una salida de error <code className="value">(exit code &gt; 0)</code> interrumpe la secuencia mediante la directiva
+            <code className="token">needs</code>, forzando un estado <code className="token">skipped</code>
+             en el despliegue para proteger el entorno.            
           </motion.p>
         </div>
 
@@ -192,7 +189,7 @@ export default function Pruebas() {
           animate={codeInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
           transition={{ duration: 0.6, ease: EASE }}
         >
-          <CodeBlock filename="sum.test.js" language="jsx">
+          <CodeBlock filename="Button.test.jsx" language="jsx">
             {JEST_SNIPPET}
           </CodeBlock>
           <CodeBlock filename=".github/workflows/deploy.yml" language="yaml">

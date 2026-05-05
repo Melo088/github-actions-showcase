@@ -94,10 +94,74 @@ function tokenizeValueStr(str) {
   return tokens
 }
 
+
+// Tokeniza una línea de JavaScript / JSX
+function tokenizeJSLine(line) {
+  if (line.trim() === '') return [{ text: line || ' ', cls: '' }]
+
+  // Comentario de línea completa
+  const wsEnd = line.search(/\S/)
+  if (/^\s*\/\//.test(line)) {
+    const tokens = []
+    if (wsEnd > 0) tokens.push({ text: line.slice(0, wsEnd), cls: '' })
+    tokens.push({ text: line.slice(Math.max(0, wsEnd)), cls: 'jc' })
+    return tokens
+  }
+
+  const tokens = []
+  let remaining = line
+
+  const patterns = [
+    // Template literals
+    { re: /^`[^`]*`/,                                                      cls: 'js' },
+    // Strings simples
+    { re: /^'[^']*'/,                                                       cls: 'js' },
+    // Strings dobles
+    { re: /^"[^"]*"/,                                                       cls: 'js' },
+    // Comentario inline
+    { re: /^\/\/.*$/,                                                       cls: 'jc' },
+    // JSX tag de cierre </Tag>
+    { re: /^<\/[A-Z]\w*>/,                                                  cls: 'jt' },
+    // JSX tag de apertura <Tag> o <Tag/>
+    { re: /^<[A-Z]\w*\/?>/,                                                 cls: 'jt' },
+    // Keywords
+    { re: /^(import|export|default|from|const|let|var|function|return|if|else|for|while|class|extends|new|this|typeof|async|await|try|catch|finally|throw|of|in|null|undefined|true|false)\b/, cls: 'jk' },
+    // Llamadas a función/método: identifier(
+    { re: /^\w+(?=\s*\()/,                                                  cls: 'jf' },
+    // Números
+    { re: /^\d+/,                                                           cls: 'jn' },
+  ]
+
+  while (remaining.length > 0) {
+    let matched = false
+    for (const { re, cls } of patterns) {
+      const m = remaining.match(re)
+      if (m) {
+        tokens.push({ text: m[0], cls })
+        remaining = remaining.slice(m[0].length)
+        matched = true
+        break
+      }
+    }
+    if (!matched) {
+      const last = tokens[tokens.length - 1]
+      if (last && last.cls === '') {
+        last.text += remaining[0]
+      } else {
+        tokens.push({ text: remaining[0], cls: '' })
+      }
+      remaining = remaining.slice(1)
+    }
+  }
+
+  return tokens
+}
+
 function tokenizeLine(line, language) {
   if (language === 'yaml') return tokenizeYAMLLine(line)
   // bash y jsx: tokenizar solo expresiones ${{...}} y strings; resto plain
   if (language === 'bash') return tokenizeValueStr(line)
+  if (language === 'javascript' || language === 'jsx') return tokenizeJSLine(line) 
   return [{ text: line, cls: '' }]
 }
 

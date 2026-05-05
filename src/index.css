@@ -597,7 +597,7 @@ code, kbd, pre, samp {
 /* Vault — simula GitHub Settings → Secrets */
 .vault {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; /* ← minmax(0,...) */
   column-gap: var(--space-4);
   border: 1px solid var(--gh-border);
   border-radius: 8px;
@@ -653,6 +653,9 @@ code, kbd, pre, samp {
   font-size: 12.5px;
   color: var(--gh-text);
   white-space: nowrap;
+  overflow: hidden;       /* ← */
+  text-overflow: ellipsis; /* ← */
+  min-width: 0;            /* ← */
 }
 
 .vault-masked {
@@ -660,10 +663,18 @@ code, kbd, pre, samp {
   color: var(--gh-muted2);
   letter-spacing: 0.05em;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0; /* ← permite que el grid shrinkee esta celda */
 }
 
 .vault-badge {
   white-space: nowrap;
+}
+
+.secrets-sticky {
+  position: sticky;
+  top: calc(var(--nav-h) + var(--space-4));
 }
 
 /* Cards de la derecha */
@@ -715,11 +726,11 @@ code, kbd, pre, samp {
 .secrets-types {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .secrets-type {
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3);
   border-radius: 6px;
   border: 1px solid var(--gh-border2);
   cursor: default;
@@ -750,10 +761,9 @@ code, kbd, pre, samp {
   color: var(--gh-muted);
   line-height: 1.5;
   margin: 0;
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.2s ease;
+  max-height: none;
+  opacity: 1;
+  overflow: visible;
 }
 
 .secrets-type:hover .secrets-type-desc {
@@ -843,7 +853,9 @@ code, kbd, pre, samp {
 /* ─── Pruebas ─────────────────────────────────────────────────────────────── */
 .pruebas-section {
   background: var(--gh-canvas);
+  position: relative;
 }
+
 
 .pruebas-header {
   text-align: center;
@@ -859,8 +871,10 @@ code, kbd, pre, samp {
   margin: var(--space-3) 0 var(--space-4);
 }
 
-.hw-clip--green .hw {
-  color: var(--gh-green-l);
+.hw-clip--outline .hw {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--gh-muted2);
+  paint-order: stroke fill;
 }
 
 .pruebas-sub {
@@ -1116,6 +1130,12 @@ code, kbd, pre, samp {
   color: var(--gh-muted2);
 }
 
+.marketplace-section {
+  background: var(--gh-canvas);
+  position: relative;
+}
+
+
 /* ─── CodeBlock ───────────────────────────────────────────────────────────── */
 .cb {
   background: var(--gh-surface);
@@ -1219,6 +1239,15 @@ code, kbd, pre, samp {
 .yt-yw { color: #e3b341; }
 .yt-yn { color: #f47067; }
 
+
+/* Syntax token colors — JS / JSX */
+.yt-jk { color: #bc8cff; }                      /* keywords        → purple  */
+.yt-js { color: #a5d6ff; }                      /* strings         → blue    */
+.yt-jc { color: #484f58; font-style: italic; }  /* comments        → muted   */
+.yt-jt { color: #3fb950; }                      /* JSX tags        → green   */
+.yt-jf { color: #e3b341; }                      /* function calls  → yellow  */
+.yt-jn { color: #f47067; }                      /* numbers         → red     */
+
 /* ─── PipelineTicker ─────────────────────────────────────────────────────── */
 .pticker {
   display: flex;
@@ -1301,11 +1330,16 @@ code, kbd, pre, samp {
 /* ─── Deploy ──────────────────────────────────────────────────────────────── */
 .deploy-section {
   position: relative;
+  z-index: 1;
   overflow: hidden;
-  background: var(--gh-bg);
+  background: var(--gh-canvas);
+  border-top: 1px solid var(--gh-border2);
 }
 
 .deploy-bg-glow {
+  top: -100px;
+  opacity: 0.7;
+  filter: blur(120px);
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse 70% 55% at 50% 90%, rgba(63, 185, 80, 0.055) 0%, transparent 70%);
@@ -1340,7 +1374,7 @@ code, kbd, pre, samp {
 }
 
 .deploy-benefit-icon {
-  color: var(--gh-green-l);
+  color: var(--gh-muted2);
   flex-shrink: 0;
   margin-top: 2px;
   display: flex;
@@ -1562,6 +1596,11 @@ code, kbd, pre, samp {
 
   .yaml-sticky {
     position: static;
+  }
+
+  .secrets-cards {
+    display: flex;
+    flex-direction: column;
   }
 }
 

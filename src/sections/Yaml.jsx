@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { motion } from 'framer-motion'
 import useScrollReveal from '../hooks/useScrollReveal'
 import CodeBlock from '../components/CodeBlock'
+import { line } from 'framer-motion/client'
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -12,8 +13,14 @@ const DEPLOY_YAML = `name: Deploy to AWS S3 + CloudFront
 on:
   push:
     branches: ['main']
+    paths-ignore:
+      - '**.md'
+      - 'README*'
   pull_request:
     branches: ['main']
+    paths-ignore:
+      - '**.md'
+      - 'README*'
 
 jobs:
   test:
@@ -59,53 +66,93 @@ jobs:
 const ANNOTATIONS = [
   {
     id: 'on',
-    lineLabel: 'L3–7',
-    lines: [3, 4, 5, 6, 7],
-    title: 'Triggers — cuándo ejecutar',
-    body: 'El bloque on: define qué eventos activan el workflow. Respondemos a push en main (para deploy) y a pull_request (para validación). Ambos triggers conviven en el mismo archivo.',
-    tip: 'Puedes combinar todos los eventos que necesites en un solo on:',
+    lineLabel: 'L3–13',
+    lines: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+    title: 'Event Triggers',
+    body: 'Configuración del webhook de GitHub. Define la ejecución automática en ramas protegidas. Filtra por tipo de evento (push) y estado de integración (pull_request).',
+    tip: 'Soporta filtros por paths, tags y cron schedule.',
   },
   {
     id: 'test',
-    lineLabel: 'L10–20',
-    lines: [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-    title: 'Job de tests — el guardián',
-    body: 'El job test corre en un runner ubuntu-latest que GitHub provisiona y destruye gratis en cada ejecución. Instala dependencias con npm ci y ejecuta la suite de pruebas antes de cualquier deploy.',
-    tip: 'ubuntu-latest: GitHub provisiona la VM, tú solo pagas con minutos gratuitos',
+    lineLabel: 'L15–26',
+    lines: [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26],
+    title: 'Job: Test Runtime',
+    body: 'Aislamiento de ejecución en runners ubuntu-latest. Provisionamiento de entorno Node.js 20 con caché de dependencias habilitado para reducir el tiempo de cold-start.',
+    tip: 'npm ci garantiza builds deterministas basados en el lockfile.',
   },
   {
     id: 'needs',
-    lineLabel: 'L24–26',
-    lines: [24, 25, 26],
-    title: 'needs: test — dependencia de jobs',
-    body: 'Esta línea hace el pipeline secuencial: deploy no puede empezar hasta que test termine con éxito. Si los tests fallan, el deploy nunca ocurre. Por defecto, los jobs corren en paralelo.',
-    tip: 'Sin needs:, todos los jobs corren en paralelo simultáneamente',
+    lineLabel: 'L28–32',
+    lines: [28, 29, 30, 31, 32],
+    title: 'Job Dependency & Logical Flow',
+    body: 'Control de flujo secucencial mediante needs. El job de deploy solo entra en cola si el job de test retorna exit code 0. La sentencia if restringe el despliegue a la rama productiva.',
+    tip: 'Evita despliegues accidentales desde ramas de desarrollo.',
   },
   {
     id: 'secrets',
-    lineLabel: 'L27–31',
-    lines: [27, 28, 29, 30, 31],
-    title: 'env: — credenciales sin action intermediaria',
-    body: 'Las variables de entorno se declaran a nivel del job completo. AWS CLI las lee de forma nativa — sin ninguna action del Marketplace. AWS_SESSION_TOKEN es necesario en sandboxes que usan credenciales temporales (como AWS Academy).',
-    tip: '${{ secrets.NAME }} — cifrado en GitHub, redactado automáticamente en los logs',
+    lineLabel: 'L33–37',
+    lines: [33, 34, 35, 36, 37],
+    title: 'Environment Variables',
+    body: 'Inyección de secretos cifrados en el runtime del runner. AWS CLI consume estas variables de forma nativa para autenticar sesiones temporales sin persistencia de credenciales.',
+    tip: 'Usa AWS_SESSION_TOKEN para compatibilidad con AWS Academy/Sandboxes.',
   },
+    {
+    id: 'steps-deploy',
+    lineLabel: 'L38–47',
+    lines: [38,39,40,41,42,43,44,45,46,47],
+    title: 'Build Pipeline',
+    body: 'Reproducción del entorno de build: checkout del código, provisión de Node.js 20 con caché npm, instalación determinista de dependencias y compilación del bundle de producción.',
+    tip: 'El artefacto resultante en dist/ es lo que se sube a S3.',
+  },
+  {
+    id: 'sync',
+    lineLabel: 'L48-49',
+    lines: [48, 49],
+    title: 'S3 State Sync',
+    body: 'Sincronización de artefactos de build hacia el bucket. El flag --delete asegura que el estado del bucket sea idéntico al directorio dist/, eliminando archivos obsoletos.',
+    tip: 'Operación idempotente: solo transfiere archivos modificados.'
+  },
+  {
+    id: 'cloudfront',
+    lineLabel: 'L50-54',
+    lines: [50, 51, 52, 53, 54],
+    title: 'Edge Cache Invalidation',
+    body: 'Purga de caché en los nodos del borde de CloudFront. Obliga a la CDN a recuperar los nuevos archivos de S3 para que el usuario final vea los cambios inmediatamente después del despliegue.',
+    tip: 'Path /* invalida toda la distribución; usa rutas específicas para optimizar costos.'
+  }
 ]
 
 // Bloque de anotación individual — notifica al padre cuando entra en view
 function AnnotationBlock({ annotation, isActive, onEnter }) {
-  const { ref, isInView } = useScrollReveal({ threshold: 0.45, once: true })
+  const { ref, isInView } = useScrollReveal({ 
+    threshold: 0,
+    once: false,
+    margin: '-49% 0px -49% 0px' 
+  })
 
   useEffect(() => {
-    if (isInView) onEnter(annotation.id)
-  }, [isInView]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (isInView) {
+      onEnter(annotation.id)
+    } 
+  }, [isInView, isActive, annotation.id, onEnter])
 
   return (
     <motion.div
       ref={ref}
       className={`yaml-annotation${isActive ? ' yaml-annotation--active' : ''}`}
       initial={{ opacity: 0, y: 32 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
-      transition={{ duration: 0.6, ease: EASE }}
+      animate={{
+        opacity: isActive ? 1 : 0.3,
+        y: isActive ? 0 : 15,
+        scale: isActive ? 1 : 0.98,
+        filter: isActive ? 'blur(0px)' : 'blur(1px)',
+      }}
+      transition={{
+        type: 'spring',
+        stiffness: 50,
+        damping: 15,
+        mass: 1
+      }}
     >
       <span className="yaml-ann-linelabel">{annotation.lineLabel}</span>
       <h3 className="yaml-ann-title">{annotation.title}</h3>

@@ -41,15 +41,19 @@ const OIDC_SNIPPET = `permissions:
 const SECRET_TYPES = [
   {
     name: 'Repository',
-    desc: 'Disponibles en todos los workflows del repositorio.',
+    desc: 'Aislados al contexto del repositorio actual',
   },
   {
     name: 'Environment',
-    desc: 'Solo disponibles en workflows que apuntan a ese entorno (staging, production…).',
+    desc: (
+      <span>
+        Vinculados a entornos de despliegue (ej. <code className="production">production</code>). Requieren reglas de protección y reviewers.
+      </span>
+    ),
   },
   {
     name: 'Organization',
-    desc: 'Compartidos entre múltiples repositorios de la organización.',
+    desc: 'Compartidos transversalmente entre repositorios de una organización. Ideales para credenciales de infraestructura core.',
   },
 ]
 
@@ -72,13 +76,14 @@ export default function Secrets() {
 
           {/* Columna izquierda — Vault */}
           <motion.div
+            className='secrets-sticky'
             initial={{ opacity: 0, x: -40 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
             transition={{ duration: 0.7, ease: EASE }}
           >
             <span className="section-eyebrow">Seguridad</span>
             <h2 className="section-title" style={{ marginTop: 'var(--space-3)' }}>
-              Las credenciales<br />nunca van en el código
+              Aislamiento<br />de credenciales
             </h2>
             <p className="section-lead" style={{ marginBottom: 'var(--space-5)' }}>
               GitHub cifra cada secret con libsodium antes de almacenarlo.
@@ -101,7 +106,7 @@ export default function Secrets() {
                     <code className="vault-name">{name}</code>
                   </div>
                   <span className="vault-masked" aria-label="valor cifrado">
-                    ••••••••••••••••
+                    {'•'.repeat(15)}
                   </span>
                   <span className="badge badge--green vault-badge">
                     <LockIcon />
@@ -122,7 +127,7 @@ export default function Secrets() {
 
             {/* Card 1 — Tipos de secrets */}
             <div className="secrets-card">
-              <h3 className="secrets-card-title">Tipos de secrets</h3>
+              <h3 className="secrets-card-title" style={{ marginBottom: 'var(--space-4)' }}>Secret Scopes (Ámbitos)</h3>
               <div className="secrets-types">
                 {SECRET_TYPES.map(({ name, desc }) => (
                   <div key={name} className="secrets-type">
@@ -135,7 +140,7 @@ export default function Secrets() {
 
             {/* Card 2 — Uso en workflow */}
             <div className="secrets-card">
-              <h3 className="secrets-card-title">Uso en el workflow</h3>
+              <h3 className="secrets-card-title">Estrategias de Inyección</h3>
               <CodeBlock filename="deploy.yml" language="yaml">
                 {SNIPPET_ACTION}
               </CodeBlock>
@@ -152,8 +157,8 @@ export default function Secrets() {
             {/* Card 3 — Pro tip OIDC */}
             <div className="secrets-card">
               <div className="secrets-oidc-header">
-                <span className="badge badge--green">Pro tip</span>
-                <h3 className="secrets-card-title">OIDC — sin credenciales estáticas</h3>
+                <span className="badge badge--green">Security Standard</span>
+                <h3 className="secrets-card-title">OIDC (Federación de Identidades)</h3>
               </div>
               <p className="secrets-card-lead">
                 Con OpenID Connect el runner negocia credenciales temporales con AWS directamente,
