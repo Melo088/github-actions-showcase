@@ -262,16 +262,16 @@ El script `setup-infra.sh` configura todos estos automaticamente. Si se necesita
 ## Capturas de pantalla
 
 ### Sitio desplegado
-<!-- SCREENSHOT: pagina completa del sitio en produccion -->
-> Pendiente agregar captura
+<!-- Video: pagina completa del sitio en produccion -->
+<video src="https://github.com/user-attachments/assets/2083e6ba-e753-44cc-9994-94c65e96bc93" controls autoplay loop muted width="100%"></video>
 
 ### Pipeline en GitHub Actions
 <!-- SCREENSHOT: pestana Actions mostrando un run exitoso con los dos jobs -->
-> Pendiente agregar captura
+<img width="1917" height="503" alt="Image" src="https://github.com/user-attachments/assets/6d95d137-5a74-4141-bf40-74f475822e5d" />
 
 ### Infraestructura Terraform
 <!-- SCREENSHOT: output de terraform apply con los recursos creados -->
-> Pendiente agregar captura
+<img width="6058" height="2955" alt="Image" src="https://github.com/user-attachments/assets/0209cc11-97aa-413d-82f8-524402f2ee83" />
 
 ---
 
