@@ -106,7 +106,7 @@ export default function Secrets() {
                     <code className="vault-name">{name}</code>
                   </div>
                   <span className="vault-masked" aria-label="valor cifrado">
-                    {'•'.repeat(15)}
+                    {'•'.repeat(8)}
                   </span>
                   <span className="badge badge--green vault-badge">
                     <LockIcon />

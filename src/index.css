@@ -673,12 +673,14 @@ code, kbd, pre, samp {
 }
 
 .secrets-sticky {
+  min-width: 0;
   position: sticky;
   top: calc(var(--nav-h) + var(--space-4));
 }
 
 /* Cards de la derecha */
 .secrets-cards {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -1138,6 +1140,8 @@ code, kbd, pre, samp {
 
 /* ─── CodeBlock ───────────────────────────────────────────────────────────── */
 .cb {
+  max-width: 100%;
+  min-width: 0;
   background: var(--gh-surface);
   border: 1px solid var(--gh-border);
   border-radius: 8px;
@@ -1559,7 +1563,8 @@ code, kbd, pre, samp {
   .section-cols {
     grid-template-columns: 1fr;
     gap: var(--space-6);
-  } /* ← cierra section-cols */
+    overflow: hidden;
+  }
 
   .secrets-sticky {
     position: static;
@@ -1624,6 +1629,7 @@ code, kbd, pre, samp {
   }
 
   .secrets-cards {
+    overflow: hidden;
     display: flex;
     flex-direction: column;
   }
