@@ -82,7 +82,7 @@ export default function Nav() {
         <a href="#" className="nav-logo" aria-label="Inicio">
           <GitHubIcon />
           <span className="nav-sep" aria-hidden="true" />
-          <span className="nav-brand">GitHub Actions.</span>
+          <span className="nav-brand">GitHub Actions</span>
         </a>
 
         {/* Center — anchor links */}
