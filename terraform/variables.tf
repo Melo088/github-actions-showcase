@@ -1,7 +1,7 @@
 variable "bucket_name" {
   description = "Nombre del bucket S3 que aloja el sitio estático"
   type        = string
-  default     = "github-actions-showcase-v2"
+  default     = "github-actions-showcase-v3"
 }
 
 variable "aws_region" {
